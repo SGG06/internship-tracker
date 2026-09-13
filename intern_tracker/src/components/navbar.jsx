@@ -10,7 +10,7 @@ function Navbar() {
             <p className="text-xs text-slate-500">Career workspace</p>
           </div>
         </div>
-        <button className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">Profile</button>
+        {/* <button className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">Profile</button> */}
       </div>
     </nav>
   );
