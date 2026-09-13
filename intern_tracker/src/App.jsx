@@ -16,28 +16,37 @@ function App() {
       company: "Google",
       role: "Software Engineer Intern",
       status: "Applied",
+      deadline: "2026-09-21",
     },
     {
       id: 2,
       company: "Microsoft",
       role: "Software Engineer Intern",
       status: "Applied",
+      deadline: "2026-09-21",
     },
     {
       id: 3,
       company: "Stripe",
       role: "Software Engineer Intern",
-      status: "NOT-Applied",
+      status: "Not-Applied",
+      deadline: "2026-09-21",
     },
   ]);
 
+  const [search, setSearch]= useState("")
+
+  const [filter, setfilter]= useState("All")
+
+
   //add application
-function addApplication(company, role, status) {
+function addApplication(company, role, status,deadline) {
   const newApplication = {
     id: Date.now(),
     company: company,
     role: role,
     status: status,
+    deadline: deadline,
   };
 
   setApplications([...applications, newApplication]);
@@ -60,7 +69,6 @@ useEffect(()=> {
   }
 }, [])
 
-const [search, setSearch]= useState("")
 
 //use effect to update the local storage
 useEffect(() => {
@@ -77,48 +85,96 @@ function updateStatus(id, newStatus){
           status : newStatus
         }
       }
-      else return {...application}
+      else return application
     })
   )
 }
 
-const filteredApplication = applications.filter((application)=> application.company.toLowerCase().includes(search.toLowerCase()))
+function updateApplication(id,company,role,status,deadline){
+  setApplications(
+    applications.map((application) => {
+      if(application.id===id){
+        return {
+          ...application,
+          company: company,
+          role: role,
+          status: status,
+          deadline: deadline
+        }
+      }
+      else return application;
+    }))
+}
+
+const filteredApplications = applications.filter((application)=> application.company.toLowerCase().includes(search.toLowerCase()) && (filter==="All" || application.status===filter))
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50 text-slate-900">
       <Navbar />
-      <AddApplication onAdd={addApplication} />
-      
-      <h1>Job Tracker</h1>
-      <p>Track your internship and job applications.</p>
 
-      <input
-        placeholder="Search applications..."
-        value={search}
-        
-        onChange={(e) => {
-          setSearch(e.target.value) 
-          }}
-      />
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+        <section className="mb-8">
+          <div>
+            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-indigo-600">Your workspace</p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Job Tracker</h1>
+            <p className="mt-2 max-w-xl text-base text-slate-500">Keep every opportunity organized, from first application to final offer.</p>
+          </div>
+        </section>
 
-          //Application Card for all in array application
-      {filteredApplication.map((application) => (
-        <ApplicationCard
-          key={application.id} // key is there to help React identify which items have changed, are added, or are removed. It should be a unique value for each item in the list.
-          id={application.id}
-          company={application.company}
-          role={application.role}
-          status={application.status}
-          onDelete={deleteApplication}
-          onStatusChange={updateStatus}
-        />
-      ))}
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+          <section className="order-2 min-w-0 lg:order-1">
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-slate-950">Applications</h2>
+                <p className="mt-1 text-sm text-slate-500">{filteredApplications.length} {filteredApplications.length === 1 ? "opportunity" : "opportunities"} shown</p>
+              </div>
+              <button className="self-start rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 sm:self-auto" onClick={() => setApplications([])}>
+                Delete all
+              </button>
+            </div>
 
-      {/* for deleting all the records */}
-      <br></br>
-      <button onClick={() => setApplications([])}>
-        Delete All
-      </button>
+            <div className="mb-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_180px]">
+              <label className="relative block">
+                <span className="sr-only">Search applications</span>
+                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">⌕</span>
+                <input className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100" placeholder="Search by company..." value={search} onChange={(e) => setSearch(e.target.value)} />
+              </label>
+              <label>
+                <span className="sr-only">Filter applications</span>
+                <select className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100" value={filter} onChange={(e) => setfilter(e.target.value)}>
+                  <option value="All">All statuses</option>
+                  <option value="Applied">Applied</option>
+                  <option value="OA">OA</option>
+                  <option value="Interview">Interview</option>
+                  <option value="Rejected">Rejected</option>
+                  <option value="Offer">Offer</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              {filteredApplications.map((application) => (
+                <ApplicationCard
+                  key={application.id}
+                  id={application.id}
+                  company={application.company}
+                  role={application.role}
+                  status={application.status}
+                  deadline={application.deadline}
+                  onDelete={deleteApplication}
+                  onStatusChange={updateStatus}
+                  onUpdate={updateApplication}
+                />
+              ))}
+            </div>
+
+          </section>
+
+          <aside className="order-1 lg:order-2">
+            <AddApplication onAdd={addApplication} />
+          </aside>
+        </div>
+      </main>
 
     </div>
   );
