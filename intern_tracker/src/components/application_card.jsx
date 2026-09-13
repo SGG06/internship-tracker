@@ -1,5 +1,6 @@
 function ApplicationCard({id,company, role,status, onDelete, onStatusChange}) {
 
+    
     return (
         <>
             <h2>{company}</h2>
