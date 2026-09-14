@@ -8,6 +8,21 @@ function ApplicationCard({id,company, role,status,deadline, onDelete, onStatusCh
     const [editStatus, setEditStatus] = useState(status);
     const [editDeadline, setEditDeadline] = useState(deadline);
 
+    const today = new Date()
+    today.setHours(0, 0, 0, 0);
+
+    const deadlineDate = new Date(deadline);
+    deadlineDate.setHours(0, 0, 0, 0);
+
+    const daysLeft= Math.ceil((deadlineDate - today)/(1000*60*60*24))
+    let deadlineText = ""
+    
+    if(!deadline) deadlineText = "No deadline set"
+    else if(daysLeft===0) deadlineText = "Today"
+    else if(daysLeft===1) deadlineText="Tomorrow"
+    else if(daysLeft<0) deadlineText = "Overdue"
+    else  deadlineText = `${daysLeft} Days Left`
+
     return (
         <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md">
             {isEditing? (
@@ -36,6 +51,7 @@ function ApplicationCard({id,company, role,status,deadline, onDelete, onStatusCh
                         <option value="Interview">Interview</option>
                         <option value="Rejected">Rejected</option>
                         <option value="Offer">Offer</option>
+                        <option value="Not Applied">Not Applied</option>
                     </select>
                     <input
                         className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100"
@@ -82,8 +98,22 @@ function ApplicationCard({id,company, role,status,deadline, onDelete, onStatusCh
                     </select>
                 </label>
                 <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
-                    <p className="text-xs text-slate-500"><span className="font-semibold text-slate-700">Deadline</span><br />{deadline || "No deadline set"}</p>
-                    <button className="rounded-lg px-3 py-2 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-50" onClick={()=> setIsEditing(true)}>Edit</button>
+                    <p className="text-xs text-slate-500">
+                        <span className="font-semibold text-slate-700">Deadline</span>
+                        <br />
+                        {deadline || "No deadline set"}
+                    </p>
+                    <p>
+                        <br/>
+                        {deadlineText}
+                    </p>
+                    
+                    <button className="rounded-lg px-3 py-2 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-50" 
+                      onClick={()=> 
+                        setIsEditing(true)}
+                    >
+                        Edit
+                    </button>
                 </div>
             </div>
             )

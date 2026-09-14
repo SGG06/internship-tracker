@@ -29,14 +29,14 @@ function App() {
       id: 3,
       company: "Stripe",
       role: "Software Engineer Intern",
-      status: "Not-Applied",
+      status: "Not Applied",
       deadline: "2026-09-21",
     },
   ]);
 
   const [search, setSearch]= useState("")
-
-  const [filter, setfilter]= useState("All")
+  const [filter, setFilter]= useState("All")
+  const [sortBy, setSortBy] = useState("Default");
 
 
   //add application
@@ -104,9 +104,27 @@ function updateApplication(id,company,role,status,deadline){
       }
       else return application;
     }))
-}
+  }
 
-const filteredApplications = applications.filter((application)=> application.company.toLowerCase().includes(search.toLowerCase()) && (filter==="All" || application.status===filter))
+  const filteredApplications = applications.filter((application)=> application.company.toLowerCase().includes(search.toLowerCase()) && (filter==="All" || application.status===filter))
+  
+  let totalApplications = applications.length
+  let appliedApplications = applications.filter((application)=> application.status==="Applied").length
+  let oaApplications = applications.filter((application)=> application.status==="OA").length
+  let interviewApplications = applications.filter((application)=> application.status==="Interview").length
+  let rejectedApplications = applications.filter((application)=> application.status==="Rejected").length
+  let offerApplications = applications.filter((application)=> application.status==="Offer").length
+  let notAppliedApplications = applications.filter((application)=> application.status==="Not Applied").length
+
+  const sortedApplications = [...filteredApplications]
+
+  
+  {
+    if(sortBy === "Deadline : earliest") sortedApplications.sort((a,b)=> new Date(a.deadline)- new Date(b.deadline))
+    else if(sortBy === "Deadline : latest") sortedApplications.sort((a,b)=> new Date(b.deadline)- new Date(a.deadline))
+    else if(sortBy === "Company : A-Z") sortedApplications.sort((a,b)=> a.company.localeCompare(b.company))
+    else if(sortBy === "Company : Z-A") sortedApplications.sort((a,b)=> b.company.localeCompare(a.company))
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -120,6 +138,45 @@ const filteredApplications = applications.filter((application)=> application.com
             <p className="mt-2 max-w-xl text-base text-slate-500">Keep every opportunity organized, from first application to final offer.</p>
           </div>
         </section>
+
+        //dashboard
+        <div>
+          <div>
+            <h3>Total</h3>
+            <p>{totalApplications}</p>
+          </div>
+
+          <div>
+            <h3>Applied</h3>
+            <p>{appliedApplications}</p>
+          </div>
+
+          <div>
+            <h3>OA</h3>
+            <p>{oaApplications}</p>
+          </div>
+
+          <div>
+            <h3>Interview</h3>
+            <p>{interviewApplications}</p>
+          </div>
+
+          <div>
+            <h3>Rejected</h3>
+            <p>{rejectedApplications}</p>
+          </div>
+          
+          <div>
+            <h3>Offers</h3>
+            <p>{offerApplications}</p>
+          </div>
+
+          <div>
+            <h3>Not Applied</h3>
+            <p>{notAppliedApplications}</p>
+          </div>
+          
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
           <section className="order-2 min-w-0 lg:order-1">
@@ -141,19 +198,30 @@ const filteredApplications = applications.filter((application)=> application.com
               </label>
               <label>
                 <span className="sr-only">Filter applications</span>
-                <select className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100" value={filter} onChange={(e) => setfilter(e.target.value)}>
+                <select className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100" value={filter} onChange={(e) => setFilter(e.target.value)}>
                   <option value="All">All statuses</option>
                   <option value="Applied">Applied</option>
                   <option value="OA">OA</option>
                   <option value="Interview">Interview</option>
                   <option value="Rejected">Rejected</option>
                   <option value="Offer">Offer</option>
+                  <option value="Not Applied">Not Applied </option>
+                </select>
+              </label>
+              <label>
+                <span>Sort by: </span>
+                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                  <option value="Default">Default</option>
+                  <option value="Deadline : earliest">Deadline : earliest</option>
+                  <option value="Deadline : latest">Deadline : latest</option>
+                  <option value="Company : A-Z">Company : A-Z</option>
+                  <option value="Company : Z-A">Company : Z-A</option>
                 </select>
               </label>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              {filteredApplications.map((application) => (
+              {sortedApplications.map((application) => (
                 <ApplicationCard
                   key={application.id}
                   id={application.id}
